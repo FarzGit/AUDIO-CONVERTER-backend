@@ -8,6 +8,7 @@ const userAuth = asyncHandler(async (req, res) => {
   const { email, password } = req.body
 
   const user = await User.findOne({ email: email })
+ 
 
   if (user && (await user.matchPassword(password))) {
     genereateToken(res, user._id)
@@ -26,6 +27,10 @@ const userAuth = asyncHandler(async (req, res) => {
 
 const register = asyncHandler(async (req, res) => {
   const { name, email, mobile, password } = req.body
+  console.log('entered to register')
+  console.log(name)
+
+
 
   const userExist = await User.findOne({ email: email })
 
@@ -40,6 +45,8 @@ const register = asyncHandler(async (req, res) => {
     mobile,
     password
   })
+
+  console.log(user)
 
   console.log('user is :', user)
 
@@ -92,6 +99,13 @@ const editProfile = asyncHandler(async (req, res) => {
     user.name = req.body.name || user.name
     user.email = req.body.email || user.email
     user.mobile = req.body.mobile || user.mobile
+
+    if(req.body.oldPassword){
+      const isPasswordMatch = await user.matchPassword(req.body.oldPassword);
+      if(!isPasswordMatch){
+        return res.status(401).json({message:'Old password is incorrect'})
+      }
+    }
 
     if (req.body.password) {
       user.password = req.body.password
