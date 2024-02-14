@@ -4,6 +4,7 @@ dotenv.config()
 import cookieParser from 'cookie-parser'
 const port = process.env.PORT||5000;
 import userRoute from './routers/userRouters.js'
+import adminRouter from './routers/adminRouter.js'
 import { notFound,errorHandler } from "./middleware/errorMiddleware.js";
 import connectDb from "./config/db.js";
 
@@ -15,6 +16,9 @@ app.use(express.urlencoded({extended:true}))
 
 app.use(cookieParser())
 app.use('/api/users',userRoute)
+app.use('/api/admin',adminRouter)
+
+
 app.use(notFound)
 app.use(errorHandler)
 
