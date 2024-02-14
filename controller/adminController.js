@@ -33,6 +33,23 @@ const adminAuth = asyncHandler(async (req,res)=>{
 })
 
 const editUser = asyncHandler(async(req,res)=>{
+    
+    const user = await User.findById(req.body._id)
+
+    if(user){
+        user.name = req.body.name || user.name
+        user.mobile = req.body.mobile || user.mobile
+        user.email = req.body.email || user.email
+    }
+
+    const updateUser = await user.save()
+
+    res.status(201).json({
+        _id:updateUser._id,
+        name:updateUser.name,
+        email:updateUser.email,
+        mobile:updateUser.mobile
+    })
 
 })
 
@@ -41,16 +58,30 @@ const deleteUser = asyncHandler(async(req,res)=>{
 })
 
 const blockUser = asyncHandler(async(req,res)=>{
-    res.status(200).json({ message: "block user" });
+    const userId = req.query.id
+    const user = await User.findOne({_id:userId}).select('-password')
+    if(user){
+        user.isStatus = !user.isStatus;
+        await user.save()
+    }
+    res.status(200).json(user);
 
 })
 
 const getUsers = asyncHandler(async(req,res)=>{
-    res.status(200).json({ message: "user getting" });
-
+    console.log('entered into getuser')
+    const user = await User.find().select('-password')
+    console.log('user:',user)
+    res.json({user})
 })
 
 const adminLogout = asyncHandler(async(req,res)=>{
+
+    res.cookie('jwt', '', {
+        httpOnly: true,
+        expires: new Date(0)
+      })
+    
     res.status(200).json({ message: "Admin Logged Out" });
 })
 
