@@ -10,6 +10,7 @@ Router.post('/logout',adminLogout)
 Router.get('/users',protect,getUsers)
 Router.put('/users/edit-user',editUser)
 Router.patch('/users/block-unblock',protect,blockUser)
+Router.delete('/users/delete',protect,deleteUser)
 
 
 

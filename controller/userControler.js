@@ -1,6 +1,9 @@
 import asyncHandler from 'express-async-handler'
 import User from '../model/userModel.js'
 import genereateToken from '../utils/generateToken.js'
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fs from 'fs'
 
 const userAuth = asyncHandler(async (req, res) => {
   console.log('entered')
@@ -16,7 +19,8 @@ const userAuth = asyncHandler(async (req, res) => {
       _id: user.id,
       name: user.name,
       email: user.email,
-      mobile:user.mobile
+      mobile:user.mobile,
+      isStatus:user.isStatus
     })
   } else {
     res.status(401)
@@ -123,4 +127,42 @@ const editProfile = asyncHandler(async (req, res) => {
   })
 })
 
-export { userAuth, register, logOut, getProfile, editProfile }
+
+const uploadProfileImage = asyncHandler(async(req,res)=>{
+
+  console.log('entered upload image')
+  
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+
+
+  try {
+    const user = await User.findById(req.user._id);
+
+    console.log(user)
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.profile = req.file.filename;
+    const updatedData= await user.save();
+
+    res.status(200).json({ 
+      _id:updatedData._id,
+        name:updatedData.name,
+        email:updatedData.email,
+        mobile:updatedData.mobile,
+        isStatus:updatedData.isBlocked,
+        profile:updatedData.profile 
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+
+
+})
+
+export { userAuth, register, logOut, getProfile, editProfile,uploadProfileImage }
